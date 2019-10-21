@@ -12,9 +12,11 @@ const emujiUserID = "Emuji#8780"
 
 // channels (probably shouldn't be hardcoded)
 // maybe create a clever algorithm that searches for a channel named emu
-const chan_emu = "552238617926303750"
+const chan_dagny = "628428702287659008"
+
 var banned_channels = [
-	"551534978417295410", // bot-design
+  "551534978417295410", // bot-design
+  "635737039517777931"
 ]
 
 var dagny = new bot()
@@ -28,13 +30,14 @@ process.on('uncaughtException', function(err) {
 
 var questionWords = []
 client.on('ready', () => {
-  var emuChannel = client.channels.get(chan_emu)
+
+  var dagnyChannel = client.channels.get(chan_dagny)
   dagny.log("Connected as " + client.user.tag)
 
-  dagny.name("Emu")
-  dagny.default_reply("...")
+  dagny.name("Dagny")
+  dagny.default_reply("Who is John Galt?")
   dagny.keywords("objectivism ayn rand atlas shrugged")
-  dagny.rating("G")
+  dagny.rating("PG13")
   emuji.load_dictionary()
   emuji.load_training_data()
 
@@ -53,39 +56,75 @@ client.on('ready', () => {
   //dagny.reply(emuChannel, msg="")
 
   questionWords.push("who")
+  questionWords.push("whos")
   questionWords.push("what")
+  questionWords.push("whats")
+  questionWords.push("whatre")
   questionWords.push("where")
+  questionWords.push("wheres")
+  questionWords.push("whered")
   questionWords.push("how")
+  questionWords.push("hows")
   questionWords.push("why")
+  questionWords.push("whys")
   questionWords.push("when")
+  questionWords.push("whens")
   questionWords.push("which")
   questionWords.push("do")
+  questionWords.push("dont")
   questionWords.push("does")
+  questionWords.push("doesnt")
   questionWords.push("did")
+  questionWords.push("didnt")
   questionWords.push("will")
   questionWords.push("wont")
   questionWords.push("would")
+  questionWords.push("wouldnt")
   questionWords.push("could")
+  questionWords.push("couldnt")
   questionWords.push("should")
+  questionWords.push("shouldnt")
   questionWords.push("can")
+  questionWords.push("cant")
   questionWords.push("have")
+  questionWords.push("havent")
   questionWords.push("may")
   questionWords.push("am")
+  questionWords.push("aint")
   questionWords.push("are")
+  questionWords.push("arent")
   questionWords.push("is")
+  questionWords.push("isnt")
   questionWords.push("was")
+  questionWords.push("wasnt")
   questionWords.push("were")
+  questionWords.push("werent")
   questionWords.push("please")
-
 })
 
 
 client.on('messageReactionAdd', (reaction, user) => {
+    //console.log(user)
 	var user = user.username.toLowerCase()
-	if (!(user.includes("emuji"))) {
+    /*
+    if (!(user.includes("emuji"))) {
 		emuji.teach(reaction.emoji.name,reaction.message.content)
 		//dagny.log("Trained " + reaction.emoji.name + " = " + reaction.message.content)
-	}
+    }
+    */  
+   console.log(user)
+
+    var react = reaction
+    var message = reaction.messageReaction
+    
+    var msg = {}
+    msg.author = reaction.author
+    //msg.isabot = reaction.author.bot
+    msg.channel = reaction.channel
+    msg.date = reaction.createdTimestamp
+    msg.content = reaction.content
+    msg.reactions = reaction.reactions
+    console.log(msg)
 })
 
 client.on('messageReactionRemove', (reaction, user) => {
@@ -144,27 +183,48 @@ client.on('message', (receivedMessage) => {
 
 })
 
+function stripPunctuation(text) {
+  var tmp = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"")
+  //tmp = tmp.replace(/\s{2,}/g," ")
+  return tmp
+}
+
 function isQuestion(text) {
     var retVal = false
-    
+    var questionScore = 0
+
     console.log("Is it a question: " + text)
     var aText = text.split(" ")
     var firstWord = aText[0]
+    if ((firstWord == "but") || (firstWord == "and") || (firstWord == "so")) { 
+      aText.shift()
+      firstWord = aText[0] 
+    }
+    var lastWord = aText[aText.length - 1]
+
     firstWord = firstWord.replace("'","")
+    lastWord = stripPunctuation(lastWord)
+
     var lastLetter = text.slice(-1)
 
     // is in the list of question words
     for (var word in questionWords) {
-        console.log(word)
-        console.log(" " + firstWord.includes(questionWords[word]))
-        if (firstWord.includes(questionWords[word]) || (firstWord === questionWords[word])) {
-            retVal = true
+        if (firstWord === questionWords[word]) {
+            questionScore +=2
+        }
+
+        if (lastWord.includes(questionWords[word]) || (lastWord === questionWords[word])) {
+            questionScore++
         }
     }
     
-    if (lastLetter == ".") { retVal = false }
-    if (lastLetter == "?") { retVal = true }
+    if ((lastLetter == ".") || (lastLetter == "!")) { questionScore-- }
+    if (lastLetter == "?") { questionScore +=2 }
+    if (text.includes("?")) { questionScore +=2 }
 
+    if (questionScore > 0) { retVal = true }
+
+    console.log("Question score: " + questionScore)
     console.log(retVal)
     return retVal
 }
