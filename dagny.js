@@ -160,10 +160,10 @@ function parseDictionary(dict) {
     if (tmp.name == "❔") {
       questionWords.push(stripPunctuation(tmp.keyword))
     }
-    if (tmp.name == "👍") {
+    if (tmp.name == "👍🏽") {
       yesWords.push(stripPunctuation(tmp.keyword))
     }
-    if (tmp.name == "👎") {
+    if (tmp.name == "👎🏽") {
       noWords.push(stripPunctuation(tmp.keyword))
     }
   }
