@@ -106,26 +106,33 @@ client.on('message', (receivedMessage) => {
 	}
 
 	if (!(banned)) {
-        
-    if (isQuestion(msg_lc)) { receivedMessage.react("❔") }
-    var yesScore = isYesNo(msg_lc) 
-    if (yesScore > 0) {
-      receivedMessage.react("👍")
-    }
-    if (yesScore < 0) {
-      receivedMessage.react("👎")
-    }
-
-    if (msg_lc.includes("john galt")) {
-        receivedMessage.react("🚂")
-    }
+    var chan = receivedMessage.channel.name
+    var regex = /^[0-9]+$/g // begins with a number
     
-    if (msg_lc.includes("who is dagny")) {
-        receivedMessage.channel.send("Who is John Galt?")
-    }
+    // allows channels to be named with -[name] 
+    /// like we have been doing on discord 
+    var aChan = chan.split("-")
+    if (aChan[0]) { chan = aChan[0] }
 
-    if (msg_lc.includes("who is john galt")) {
-        receivedMessage.channel.send("...")
+    // only post in numbered channels
+    if (chan.match(regex)) {
+      var yesScore = isYesNo(msg_lc) 
+
+      if (isQuestion(msg_lc))   { receivedMessage.react("❔") }
+      if (yesScore > 0)         { receivedMessage.react("👍") }
+      if (yesScore < 0)         { receivedMessage.react("👎") }
+
+      if (msg_lc.includes("who is dagny")) {
+        receivedMessage.channel.send("Who is John Galt?")
+      }
+
+      if (msg_lc.includes("john galt")) {
+          receivedMessage.react("🚂")
+      }
+
+      if (msg_lc.includes("who is john galt")) {
+          receivedMessage.channel.send("...")
+      }
     }
   }
 })
