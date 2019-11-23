@@ -1,3 +1,5 @@
+var dev = true // development mode
+
 const bot_secret = require('./lib/bot-secret')
 var bot = require('./lib/bot')
 
@@ -21,7 +23,6 @@ var banned_channels = [
 ]
 
 var dagny = new bot()
-var dev = false // development mode
 
 // log errors
 process.on('uncaughtException', function(err) {
@@ -145,6 +146,8 @@ client.on('message', (receivedMessage) => {
         extras: {
           'cat': 2,
           'cats': 2,
+          'yes': 0,
+          'no': 0,
           'depression': -2
         }
       }
@@ -158,7 +161,7 @@ client.on('message', (receivedMessage) => {
         // this is for performance reasons
         // switch statements are slower
         var sentiment_emoji
-        if ((!(yesScore)) || (yesScore == 0)) {
+        // if ((!(yesScore)) || (yesScore == 0)) {
           // unless the statement is a yes or a no
           if (sentiment_analysis.score >= 10) {
             sentiment_emoji = "🤩"
@@ -177,7 +180,7 @@ client.on('message', (receivedMessage) => {
           } else {
             sentiment_emoji = "😶"
           }
-        }
+        //}
         
         if (sentiment_emoji) { 
           var emo = {}
