@@ -21,6 +21,7 @@ var banned_channels = [
 ]
 
 var dagny = new bot()
+var dev = false // development mode
 
 // log errors
 process.on('uncaughtException', function(err) {
@@ -150,7 +151,7 @@ client.on('message', (receivedMessage) => {
 
       console.log(receivedMessage.author.id)
       // make sure it's the $O$ user whose emotions are being saved
-      if (receivedMessage.author.id == "606641408044171264") {
+      if ((receivedMessage.author.id == "606641408044171264") || dev) {
         var sentiment_analysis = sentiment.analyze(msg, options)
         console.log(sentiment_analysis)
   
