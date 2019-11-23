@@ -1,10 +1,13 @@
 const bot_secret = require('./lib/bot-secret')
-var bot = require('./lib/bot');
-
-const fs = require('fs')
+var bot = require('./lib/bot')
 
 const discord = require('discord.js')
 const client = new discord.Client()
+
+//var ml = require("ml-sentiment")()
+
+var Sentiment = require('sentiment')
+var sentiment = new Sentiment()
 
 const dagnyUserID = "Dagny#3183"
 
@@ -118,6 +121,7 @@ client.on('message', (receivedMessage) => {
     if (chan.match(regex)) {
       var yesScore = isYesNo(msg_lc) 
 
+      console.log("Yes Score: " + yesScore)
       if (isQuestion(msg_lc))   { receivedMessage.react("❔") }
       if (yesScore > 0)         { receivedMessage.react("👍") }
       if (yesScore < 0)         { receivedMessage.react("👎") }
@@ -133,6 +137,63 @@ client.on('message', (receivedMessage) => {
       if (msg_lc.includes("who is john galt")) {
           receivedMessage.channel.send("...")
       }
+
+      // Add words to the sentiment dictionary to customize 
+      // as we go. It's missing quite a few.
+      var options = {
+        extras: {
+          'cat': 2,
+          'cats': 2,
+          'depression': -2
+        }
+      }
+
+      console.log(receivedMessage.author.id)
+      // make sure it's the $O$ user whose emotions are being saved
+      if (receivedMessage.author.id == "606641408044171264") {
+        var sentiment_analysis = sentiment.analyze(msg, options)
+        console.log(sentiment_analysis)
+  
+        // this is for performance reasons
+        // switch statements are slower
+        var sentiment_emoji
+        if ((!(yesScore)) || (yesScore == 0)) {
+          // unless the statement is a yes or a no
+          if (sentiment_analysis.score >= 10) {
+            sentiment_emoji = "🤩"
+          } else if (sentiment_analysis.score > 5) {
+            sentiment_emoji = "😃"
+          } else if (sentiment_analysis.score > 0) {
+            sentiment_emoji = "🙂"
+          } else if (sentiment_analysis.score == 0) {
+            //sentiment_emoji = "😐"
+          } else if (sentiment_analysis.score < -10) {
+            sentiment_emoji = "😠"
+          } else if (sentiment_analysis.score < -5) {
+            sentiment_emoji = "😥"
+          } else if (sentiment_analysis.score < 0) {
+            sentiment_emoji = "🙁"
+          } else {
+            sentiment_emoji = "😶"
+          }
+        }
+        
+        if (sentiment_emoji) { 
+          var emo = {}
+          emo.channel = receivedMessage.channel.name
+          emo.channel_id = receivedMessage.channel.id
+          emo.sentiment = sentiment_analysis.score
+          emo.reaction = sentiment_emoji
+          emo.date = Date.now()
+  
+          // react in channel
+          receivedMessage.react(sentiment_emoji) 
+  
+          // save to database
+          console.log(emo)
+          dagny.insertDataMongo(emo,"dagny","emo")
+        }    
+      }     
     }
   }
 })
@@ -183,6 +244,7 @@ function stripPunctuation(text) {
 }
 
 function isYesNo(text) {
+  console.log ("Yes score: " + text)
   text = stripPunctuation(text)
   var aText = text.split(" ")
   var firstWord = aText[0]
