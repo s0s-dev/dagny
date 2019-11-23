@@ -161,31 +161,29 @@ client.on('message', (receivedMessage) => {
         // this is for performance reasons
         // switch statements are slower
         var sentiment_emoji
-        // if ((!(yesScore)) || (yesScore == 0)) {
-          // unless the statement is a yes or a no
-          if (sentiment_analysis.score >= 10) {
-            sentiment_emoji = "🤩"
-          } else if (sentiment_analysis.score > 5) {
-            sentiment_emoji = "😃"
-          } else if (sentiment_analysis.score > 0) {
-            sentiment_emoji = "🙂"
-          } else if (sentiment_analysis.score == 0) {
-            //sentiment_emoji = "😐"
-          } else if (sentiment_analysis.score < -10) {
-            sentiment_emoji = "😠"
-          } else if (sentiment_analysis.score < -5) {
-            sentiment_emoji = "😥"
-          } else if (sentiment_analysis.score < 0) {
-            sentiment_emoji = "🙁"
-          } else {
-            sentiment_emoji = "😶"
-          }
-        //}
+        if (sentiment_analysis.score >= 10) {
+          sentiment_emoji = "🤩"
+        } else if (sentiment_analysis.score > 5) {
+          sentiment_emoji = "😃"
+        } else if (sentiment_analysis.score > 0) {
+          sentiment_emoji = "🙂"
+        } else if (sentiment_analysis.score == 0) {
+          //sentiment_emoji = "😐"
+        } else if (sentiment_analysis.score < -10) {
+          sentiment_emoji = "😠"
+        } else if (sentiment_analysis.score < -5) {
+          sentiment_emoji = "😥"
+        } else if (sentiment_analysis.score < 0) {
+          sentiment_emoji = "🙁"
+        } else {
+          sentiment_emoji = "😶"
+        }
         
         if (sentiment_emoji) { 
           var emo = {}
           emo.channel = receivedMessage.channel.name
           emo.channel_id = receivedMessage.channel.id
+          emo.message = receivedMessage.content
           emo.sentiment = sentiment_analysis.score
           emo.reaction = sentiment_emoji
           emo.date = Date.now()
