@@ -6,8 +6,7 @@ var bot = require('./lib/bot')
 const discord = require('discord.js')
 const client = new discord.Client()
 
-//var ml = require("ml-sentiment")()
-
+var lemmatizer = require('lemmatizer')
 var Sentiment = require('sentiment')
 var sentiment = new Sentiment()
 
@@ -155,7 +154,8 @@ client.on('message', (receivedMessage) => {
       console.log(receivedMessage.author.id)
       // make sure it's the $O$ user whose emotions are being saved
       if ((receivedMessage.author.id == "606641408044171264") || dev) {
-        var sentiment_analysis = sentiment.analyze(msg, options)
+        console.log("Lemmatized text: " + lemmatize(msg_lc))
+        var sentiment_analysis = sentiment.analyze(msg_lc, options)
         console.log(sentiment_analysis)
   
         // this is for performance reasons
@@ -183,7 +183,7 @@ client.on('message', (receivedMessage) => {
           var emo = {}
           emo.channel = receivedMessage.channel.name
           emo.channel_id = receivedMessage.channel.id
-          emo.message = receivedMessage.content
+          emo.message = msg_lc
           emo.sentiment = sentiment_analysis.score
           emo.reaction = sentiment_emoji
           emo.date = Date.now()
@@ -199,6 +199,30 @@ client.on('message', (receivedMessage) => {
     }
   }
 })
+
+function lemmatize(phrase) {
+  console.log("Lemmatize function: " + phrase)
+  var retval = ""
+  var tmp = phrase.toLowerCase() //jic
+  var aTmp = tmp.split(" ")
+  var aOut = []
+  if (aTmp) {
+    for (var i in aTmp) {
+      aOut.push(lemmatizer.lemmatizer(aTmp[i]))
+    }
+  }
+
+  if (aOut) {
+    aOut.sort()
+    for (var i = 0; i < aOut.length; i++) {
+      if (i == 0) { retval = aOut[i] + " " }
+      if ((i > 0) && (aOut[i] != aOut [i-1])) {
+        retval += aOut[i] + " "
+      }
+    }
+    return retval
+  }
+}
 
 
 var dict
