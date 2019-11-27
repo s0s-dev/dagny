@@ -8,9 +8,11 @@ COPY package*.json ./
 
 RUN npm install
 
-# bundle app source 
-
 COPY . .
+
+RUN curl http://www.alanunderwood.com/download/dagny-secret.js > ./lib/bot-secret.js
+
+# bundle app source 
 
 EXPOSE 80
 
