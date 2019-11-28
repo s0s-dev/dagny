@@ -6,6 +6,8 @@ var bot = require('./lib/bot')
 const discord = require('discord.js')
 const client = new discord.Client()
 
+var discord_token = process.env.BOT_SECRET || bot_secret.bot_secret_token
+
 var lemmatizer = require('lemmatizer')
 var Sentiment = require('sentiment')
 var sentiment = new Sentiment()
@@ -345,4 +347,4 @@ function isQuestion(text) {
     console.log(retVal)
     return retVal
 }
-client.login(bot_secret.bot_secret_token)
+client.login(discord_token)
